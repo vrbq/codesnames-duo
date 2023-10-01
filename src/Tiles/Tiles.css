@@ -1,0 +1,60 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+  .grid-item {
+    position: relative;
+    border: 3px solid transparent;
+  }
+
+  .table-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .grid-item.crossed {
+    border-color: rgba(255, 0, 0, 0.8);
+    border-width: 3px;
+  }
+
+  .table-container {
+    display: flex;
+  }
+  
+  .table {
+    margin-right: 20px;
+  }
+
+  .grid-cell {
+    pointer-events: none;
+  }
+
+  .tableaux-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .tableau1 {
+    order: 1;
+  }
+  
+  .tableau2 {
+    order: 2;
+  }
+
+  .hide {
+    color: transparent; /* Rend le texte transparent (invisible) */
+    text-shadow: none; /* Supprime tout effet de texte shadow */
+  }
+
+  

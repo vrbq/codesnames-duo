@@ -398,7 +398,15 @@ const Tiles = () => {
   const [showSeedTable2, setShowSeedTable2] = useState(false);
   const [showSeedTableReconstruct, setShowSeedTableReconstruct] =
     useState(false);
-  const [hideWords, setHideWords] = useState(false); // Ajoutez cet état
+  const [hideWords, setHideWords] = useState(true);
+  const [newWords, setNewWords] = useState(true);
+  const [newCards, setNewCards] = useState(true);
+  const fetchWordList = async () => {
+    const response = await fetch('../src/listFR_codenames.txt');
+    const data = await response.text();
+    const array = data.split('\n').filter(item => item.trim() !== '');
+    setWordlist(array);
+  };
 
   useEffect(() => {
     // Met à jour la largeur de la fenêtre lorsqu'elle est redimensionnée
@@ -411,11 +419,82 @@ const Tiles = () => {
     // const listMot = await fetchData();
     // setWordlist(listMot);
 
+    fetchWordList();
+
     return () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
 
+  //  worldlist initalize
+  useEffect(() => {
+    if (wordlist.length !== 0) {
+      const [tableau1G, tableau2G, rotatedTableau2G] = generateLinkedTableaux();
+      setFlag(verifTableau(tableau1G, tableau2G));
+      setPlayersPosition(false);
+      setCrossPositionTableau1([0, 0]);
+      setCrossPositionTableau2([4, 4]);
+
+      setTableau1(tableau1G);
+      setTableau2(rotatedTableau2G);
+
+      const subarrayWordlist: string[] = createRandomSubarray(wordlist);
+      setSubarrayWordlist1(subarrayWordlist);
+
+      const reverseSubarrayWordlist: string[] = reverseArray(subarrayWordlist);
+      setSubarrayWordlist2(reverseSubarrayWordlist);
+
+      const seed = generateUniqueSeed(tableau1G);
+      const compressedSeed = compressSeed(seed);
+      setSeedTable1(compressedSeed);
+      // const decompressedSeed = decompressSeed(compressedSeed);
+
+      const seed2 = generateUniqueSeed(rotatedTableau2G);
+      const compressedSeed2 = compressSeed(seed2);
+      setSeedTable2(compressedSeed2);
+      // const decompressedSeed2 = decompressSeed(compressedSeed2);
+    }
+  }, [wordlist]);
+
+  //  change words only
+  useEffect(() => {
+    if (newWords) {
+      const subarrayWordlist: string[] = createRandomSubarray(wordlist);
+      setSubarrayWordlist1(subarrayWordlist);
+
+      const reverseSubarrayWordlist: string[] = reverseArray(subarrayWordlist);
+      setSubarrayWordlist2(reverseSubarrayWordlist);
+      setNewWords(false);
+    }
+  }, [newWords]);
+
+  //  change cards only
+  useEffect(() => {
+    if (newCards) {
+      const [tableau1G, tableau2G, rotatedTableau2G] = generateLinkedTableaux();
+      setFlag(verifTableau(tableau1G, tableau2G));
+      setPlayersPosition(false);
+      setCrossPositionTableau1([0, 0]);
+      setCrossPositionTableau2([4, 4]);
+
+      setTableau1(tableau1G);
+      setTableau2(rotatedTableau2G);
+
+      const seed = generateUniqueSeed(tableau1G);
+      const compressedSeed = compressSeed(seed);
+      setSeedTable1(compressedSeed);
+      // const decompressedSeed = decompressSeed(compressedSeed);
+
+      const seed2 = generateUniqueSeed(rotatedTableau2G);
+      const compressedSeed2 = compressSeed(seed2);
+      setSeedTable2(compressedSeed2);
+      // const decompressedSeed2 = decompressSeed(compressedSeed2);
+
+      setNewCards(false);
+    }
+  }, [newCards]);
+
+  // change all
   useEffect(() => {
     const [tableau1G, tableau2G, rotatedTableau2G] = generateLinkedTableaux();
     setFlag(verifTableau(tableau1G, tableau2G));
@@ -426,17 +505,7 @@ const Tiles = () => {
     setTableau1(tableau1G);
     setTableau2(rotatedTableau2G);
 
-    const fetchWordList = async () => {
-      const response = await fetch('../src/listFR_codenames.txt');
-      const data = await response.text();
-      const array = data.split('\n').filter(item => item.trim() !== '');
-      setWordlist(array);
-    };
-
-    fetchWordList();
-
     const subarrayWordlist: string[] = createRandomSubarray(wordlist);
-    console.log('subarrayWordlist', subarrayWordlist);
     setSubarrayWordlist1(subarrayWordlist);
 
     const reverseSubarrayWordlist: string[] = reverseArray(subarrayWordlist);
@@ -459,7 +528,6 @@ const Tiles = () => {
 
   const handleSubmitSeed = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Effectuez ici les actions souhaitées avec la valeur du champ texte
 
     const decompressedSeed = decompressSeed(seedTableReconstruct);
     const tableReconstruct = reconstructFromSeed(decompressedSeed);
@@ -551,9 +619,6 @@ const Tiles = () => {
           h: 1,
         };
 
-        // Si c'est la première case, ajoutez le texte "test" centré
-        // let gridItemContent: JSX.Element | string = '';
-
         // Obtenir un mot aléatoire à partir du tableau de mots
         let appropriateWord = '';
         if (tableauNumber === 1) {
@@ -572,26 +637,6 @@ const Tiles = () => {
             ? `0 0 10px rgba(255, 255, 255, 0.7)`
             : `2px 2px 4px rgba(0, 0, 0, 0.2)`;
 
-        // const gridItem = (
-        //   <div
-        //     key={`${rowIndex}-${columnIndex}`}
-        //     style={{
-        //       background: color,
-        //       color: textColor,
-        //       textShadow: textShadow, // Ajouter l'effet d'ombre ici
-        //       position: 'relative',
-        //       display: 'flex',
-        //       alignItems: 'center',
-        //       justifyContent: 'center',
-        //       height: '100%',
-        //     }}
-        //     className={`grid-item grid-cell ${isCross ? 'crossed' : ''}`}
-        //     data-grid={gridItemLayout}
-        //   >
-        //     {gridItemContent}
-        //   </div>
-        // );
-
         const gridItem = (
           <div
             key={`${rowIndex}-${columnIndex}`}
@@ -608,7 +653,8 @@ const Tiles = () => {
             className={`grid-item grid-cell ${isCross ? 'crossed' : ''}`}
             data-grid={gridItemLayout}
           >
-            {hideWords ? '' : gridItemContent} {/* Ajoutez cette condition */}
+            {hideWords ? gridItemContent : ''}
+            {hideWords}
           </div>
         );
 
@@ -690,6 +736,20 @@ const Tiles = () => {
         onClick={() => setHideWords(!hideWords)}
       >
         Afficher / Cacher les mots
+      </button>
+
+      <button
+        id="toggleButton"
+        onClick={() => setNewWords(!newWords)}
+      >
+        Changer uniquement les mots
+      </button>
+
+      <button
+        id="toggleButton"
+        onClick={() => setNewCards(!newCards)}
+      >
+        Changer uniquement les cartes
       </button>
 
       <button onClick={() => setShowTable1(!showTable1)}>
